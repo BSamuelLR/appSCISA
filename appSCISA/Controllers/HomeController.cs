@@ -5,28 +5,65 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using appSCISA.Models;
+using appSCISA.Permisos;
+using System.Data;
+using System.Data.SqlClient;
+using System.Data.SqlClient;
+
 
 namespace appSCISA.Controllers
 {
+    //[ValidarSesion]
     public class HomeController : Controller
     {
+        static string cadena = "Data Source=localHost;Initial Catalog=proyectoSCISA; User=sa; Password=dixon222669117";
+
         public IActionResult Index()
         {
-            return View();
+            var modelo = MostrarProductos();
+            return View(modelo);
+        }
+        
+
+        public IActionResult MostrarProductos()
+        {
+            List<Producto> productos = new List<Producto>();
+
+            string query = "SELECT * FROM Productos";
+
+            using (SqlConnection connection = new SqlConnection(cadena))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Producto producto = new Producto
+                            {
+                                ProductoID = (int)reader["ProductoID"],
+                                TipoProducto = reader["TipoProducto"].ToString(),
+                                NombreProducto = reader["NombreProducto"].ToString(),
+                                EstadoProducto = reader["EstadoProducto"].ToString(),
+                                FechaIngreso = (DateTime)reader["FechaIngreso"],
+                                ValorCalculado = (decimal)reader["ValorCalculado"],
+                                TiempoVencimientoDevolucion = (TimeSpan)reader["TiempoVencimientoDevolucion"]
+                            };
+
+                            productos.Add(producto);
+                        }
+                    }
+                }
+            }
+
+            return View(productos);
         }
 
-        public IActionResult About()
+        public IActionResult ingresar()
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            return RedirectToAction("Login", "Acceso");
         }
 
         public IActionResult Privacy()

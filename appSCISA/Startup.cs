@@ -31,6 +31,10 @@ namespace appSCISA
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Establece el tiempo de espera de la sesión deseado
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -48,6 +52,7 @@ namespace appSCISA
                 app.UseHsts();
             }
 
+            app.UseSession();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
@@ -58,6 +63,9 @@ namespace appSCISA
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            
+
         }
     }
 }
